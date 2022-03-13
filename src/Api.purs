@@ -22,4 +22,4 @@ getTest (FetchMethods { get, getResponseBody }) = do
     Right r -> decodeResponseBody r
   where
     decodeResponseBody :: r -> Either (ApiError e) a
-    decodeResponseBody = (lmap $ DecodeError) <<< decodeJson <<< getResponseBody
+    decodeResponseBody = lmap DecodeError <<< decodeJson <<< getResponseBody
