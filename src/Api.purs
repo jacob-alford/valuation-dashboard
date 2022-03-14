@@ -10,12 +10,12 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
 import Effect.Aff (Aff)
 
-import Rest (FetchMethods(..))
+import Rest (FetchMethods)
 
 data ApiError e = DecodeError JsonDecodeError | FetchError e
 
 getTest :: forall e r a. DecodeJson a => FetchMethods e r -> Aff (Either (ApiError e) a)
-getTest (FetchMethods { get, getResponseBody }) = do 
+getTest { get, getResponseBody } = do 
   restResult <- get "/test"
   pure $ case restResult of 
     Left e -> Left (FetchError e)

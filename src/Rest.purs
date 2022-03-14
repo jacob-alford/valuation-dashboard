@@ -14,7 +14,7 @@ import Data.Maybe as M
 import Prelude
 import Effect.Aff (Aff)
 
-data FetchMethods e r = FetchMethods {
+type FetchMethods e r = {
   get :: String -> Aff (Either e r),
   put :: forall c. EncodeJson c => String -> c -> Aff (Either e r),
   post :: forall c. EncodeJson c => String -> c -> Aff (Either e r),
@@ -22,7 +22,7 @@ data FetchMethods e r = FetchMethods {
 }
 
 affjaxEnv :: FetchMethods Affjax.Error (Affjax.Response Json)
-affjaxEnv = FetchMethods {
+affjaxEnv = {
   get: Affjax.get AffjaxRF.json,
   put: \url c -> Affjax.put AffjaxRF.json url (M.Just $ AffjaxRB.json $ encodeJson c),
   post: \url c -> Affjax.post AffjaxRF.json url (M.Just $ AffjaxRB.json $ encodeJson c),
