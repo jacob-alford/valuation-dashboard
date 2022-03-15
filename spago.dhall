@@ -13,6 +13,7 @@ You can edit this file as you like.
   , "effect"
   , "maybe"
   , "psci-support"
+  , "remotedata"
   , "transformers"
   ]
 , packages = ./packages.dhall
