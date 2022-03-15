@@ -9,7 +9,8 @@ import Effect.Console (log)
 ########### TODO ###########
 * --Create Rest.FetchMethods--
 * --Create API Structure--
-* Create RemoteData package
+* --Create ReaderAffEither module--
+* Create RemoteData module
 * Add API functions
   * Stocks
   * Crypto
