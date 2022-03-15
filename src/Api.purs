@@ -1,25 +1,55 @@
 module Api
-  ( ApiError(..),
-  getTest
+  ( ApiError(..)
+  , TestResponse2
+  , combinedRAEs
+  , getTest
   )
   where
 
-import Data.Argonaut.Decode (class DecodeJson, decodeJson, JsonDecodeError)
+import Data.Argonaut.Decode (decodeJson, JsonDecodeError)
 import Prelude
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
-import Effect.Aff (Aff)
 
 import Rest (FetchMethods)
+import ReaderAffEither (ReaderAffEither(..))
 
 data ApiError e = DecodeError JsonDecodeError | FetchError e
 
-getTest :: forall e r a. DecodeJson a => FetchMethods e r -> Aff (Either (ApiError e) a)
-getTest { get, getResponseBody } = do 
-  restResult <- get "/test"
-  pure $ case restResult of 
-    Left e -> Left (FetchError e)
-    Right r -> decodeResponseBody r
-  where
-    decodeResponseBody :: r -> Either (ApiError e) a
-    decodeResponseBody = lmap DecodeError <<< decodeJson <<< getResponseBody
+type TestResponse = {
+  a :: Int,
+  b :: Int
+}
+
+getTest :: forall e a. ReaderAffEither (FetchMethods e a) (ApiError e) TestResponse
+getTest = ReaderAffEither \fetchMethods -> 
+  let 
+    decodeResponseBody :: a -> Either (ApiError e) TestResponse
+    decodeResponseBody = lmap DecodeError <<< decodeJson <<< fetchMethods.getResponseBody
+  in do 
+    restResult <- fetchMethods.get "/test"
+    pure $ case restResult of 
+      Left e -> Left (FetchError e)
+      Right a -> decodeResponseBody a
+
+type TestResponse2 = {
+  c :: Int,
+  d :: Int
+}
+
+getTest2 :: forall e a. ReaderAffEither (FetchMethods e a) (ApiError e) TestResponse2
+getTest2 = ReaderAffEither \fetchMethods -> 
+  let 
+    decodeResponseBody :: a -> Either (ApiError e) TestResponse2
+    decodeResponseBody = lmap DecodeError <<< decodeJson <<< fetchMethods.getResponseBody
+  in do 
+    restResult <- fetchMethods.get "/test"
+    pure $ case restResult of 
+      Left e -> Left (FetchError e)
+      Right a -> decodeResponseBody a
+
+combinedRAEs :: forall e a. ReaderAffEither (FetchMethods e a) (ApiError e) Int
+combinedRAEs = do
+  test1 <- getTest
+  test2 <- getTest2
+  pure $ test1.a + test2.c

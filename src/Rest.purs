@@ -1,5 +1,6 @@
 module Rest
-  ( FetchMethods(..)
+  ( AffjaxFetchMethods
+  , FetchMethods(..)
   , affjaxEnv
   )
   where
@@ -14,14 +15,16 @@ import Data.Maybe as M
 import Prelude
 import Effect.Aff (Aff)
 
-type FetchMethods e r = {
-  get :: String -> Aff (Either e r),
-  put :: forall c. EncodeJson c => String -> c -> Aff (Either e r),
-  post :: forall c. EncodeJson c => String -> c -> Aff (Either e r),
-  getResponseBody :: r -> Json
+type FetchMethods e a = {
+  get :: String -> Aff (Either e a),
+  put :: forall c. EncodeJson c => String -> c -> Aff (Either e a),
+  post :: forall c. EncodeJson c => String -> c -> Aff (Either e a),
+  getResponseBody :: a -> Json
 }
 
-affjaxEnv :: FetchMethods Affjax.Error (Affjax.Response Json)
+type AffjaxFetchMethods = FetchMethods Affjax.Error (Affjax.Response Json)
+
+affjaxEnv :: AffjaxFetchMethods
 affjaxEnv = {
   get: Affjax.get AffjaxRF.json,
   put: \url c -> Affjax.put AffjaxRF.json url (M.Just $ AffjaxRB.json $ encodeJson c),
