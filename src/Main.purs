@@ -2,8 +2,14 @@ module Main where
 
 import Prelude
 
+import Effect.Aff (launchAff)
 import Effect (Effect)
 import Effect.Console (log)
+
+import Api.AlphaVantage (getQuote)
+import Api.Rest (affjaxEnv)
+import Lib.ReaderAffEither (unwrap, supplyEnv)
+
 {--
 
 ########### TODO ###########
@@ -22,4 +28,5 @@ import Effect.Console (log)
 -}
 main :: Effect Unit
 main = do
-  log "🍝"
+  result <- launchAff $ supplyEnv { fetchMethods: affjaxEnv, apiKey: "T8IH8HUTJCHZ4X66" } $ getQuote { symbol: "IBM" }
+  log result.run."Global Quote"."02. open"

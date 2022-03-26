@@ -1,5 +1,6 @@
-module ReaderAffEither
+module Lib.ReaderAffEither
   ( ReaderAffEither(..)
+  , supplyEnv
   , unwrap
   )
   where
@@ -13,6 +14,9 @@ newtype ReaderAffEither r e a = ReaderAffEither (r -> Aff (Either e a))
 
 unwrap :: forall r e a. ReaderAffEither r e a -> r -> Aff (Either e a)
 unwrap (ReaderAffEither reb) = reb
+
+supplyEnv :: forall r e a. r -> ReaderAffEither r e a -> Aff (Either e a)
+supplyEnv r (ReaderAffEither reb) = reb r
 
 instance functorReaderAffEither :: Functor (ReaderAffEither r e) where
   map f (ReaderAffEither fa) = ReaderAffEither (map (map f) <<< fa)
